@@ -1,40 +1,28 @@
-#include <iostream>
+#ifndef BASIC_H
+#define BASIC_H
+
 #include <vector>
 #include <functional>
 #include <random>
 #include <chrono>
 #include <cmath>
-#include <limits>
+#include <iostream>
+#include "hashTableBase.h"  // Include the base class definition
 
-// Abstract base class for hash tables
-class HashTableBase {
-protected:
-    int N;  // Number of slots in the hash table
 
-public:
-    HashTableBase(int numSlots) : N(numSlots) {}
-    virtual ~HashTableBase() {}
-
-    // Pure virtual functions
-    virtual bool insert(int key) = 0;
-    virtual bool search(int key) = 0;
-    virtual bool remove(int key) = 0;
-
-    // Optional: A function to display the hash table (can be overridden)
-    virtual void display() const = 0;
-};
-
-// Element stored in the hash table
-struct Element {
-    int key;
-    int choice;
-
-    Element(int k = -1, int c = 0) : key(k), choice(c) {}
-};
 
 // Bubble-up hash table implementation
-class BubbleUpHashTable : public HashTableBase {
+
+class BasicBubbleUpHashTable : public HashTableBase {
 private:
+    // Element structure to store key and its hash choice in the hash table
+    struct Element {
+        int key;
+        int choice;
+
+        Element(int k = -1, int c = -1) : key(k), choice(c) {}
+    };
+
     int d;  // Number of hash functions
     int MAX_RELOCATIONS;  // Maximum number of allowed relocations
     std::vector<Element> table;
@@ -54,8 +42,8 @@ private:
 
 public:
     // Constructor
-    BubbleUpHashTable(int numSlots, double epsilon)
-        : HashTableBase(numSlots), d(std :: ceil(3 * std :: log(1/epsilon) + 1)) {
+    BasicBubbleUpHashTable(int numSlots, int numD)
+        : HashTableBase(numSlots), d(numD) {
         // For MAX_RELOCATIONS, we can use a function of log(N)
         MAX_RELOCATIONS = static_cast<int>(6 * std::log(N));
         table.resize(N);
@@ -82,7 +70,7 @@ public:
                 bool foundFreeSlot = false;
                 for (int i = x.choice + 1; i <= d - 2; ++i) {
                     int tempPos = hashFunctions[i](x.key);
-                    if (table[tempPos].key == -1) {
+                    if (table[tempPos].choice == -1) {
                         x.choice = i;
                         foundFreeSlot = true;
                         break;
@@ -113,7 +101,7 @@ public:
 
     // Search for an element in the hash table
     bool search(int key) override {
-        for (int i = 0; i < d; ++i) {
+        for (int i = d; ~i; --i) {
             int pos = hashFunctions[i](key);
             if (table[pos].key == key) {
                 return true;
@@ -145,41 +133,8 @@ public:
     }
 };
 
-// Main function to test the hash table
-int main() {
-    int N = 10007;     // Number of slots
-    // int d = 4;         // Number of hash functions
-    double epsilon = 0.01;
-
-    // Create an instance of the BubbleUpHashTable
-    BubbleUpHashTable ht(N, epsilon);
-
-    // Insert elements
-    for (int i = 1; i <= 1000; ++i) {
-        ht.insert(i);
-    }
-
-    // Search for elements
-    for (int i = 1; i <= 1000; ++i) {
-        if (!ht.search(i)) {
-            std::cerr << "Key " << i << " not found!" << std::endl;
-        }
-    }
-
-    // Remove elements
-    for (int i = 1; i <= 500; ++i) {
-        ht.remove(i);
-    }
-
-    // Search for removed elements
-    for (int i = 1; i <= 500; ++i) {
-        if (ht.search(i)) {
-            std::cerr << "Key " << i << " should have been removed!" << std::endl;
-        }
-    }
-
-    // Display hash table
-    // ht.display();
-
-    return 0;
+int computeBasicD(double epsilon) {
+    return std :: ceil(3 * std :: log(1/epsilon) + 1);
 }
+
+#endif 

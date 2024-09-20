@@ -1,3 +1,3 @@
 # Cuckoo hashing
 
-Project on implementing a cuckoo hashing project
+Project on implementing a novel design of cuckoo hashing.
