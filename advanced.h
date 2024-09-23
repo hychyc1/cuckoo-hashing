@@ -44,6 +44,7 @@ struct Element {
     
     // parameters with place holder functions
     void computeParameters() {
+        // take dcore = 1/alpha + 5 satisfies the first condition
         d = std :: ceil(std :: log (1 / eps) + alpha) + 0.001;
         dcore = 1/alpha;
         double D = exp(-dcore);
